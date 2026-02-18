@@ -17,4 +17,4 @@ Deploy [NVIDIA Video Search and Summarization](https://github.com/NVIDIA-AI-Blue
 
 - [VSS Blueprint Overview](https://docs.nvidia.com/vss/latest/content/overview.html)
 - [VSS Helm Deployment](https://docs.nvidia.com/vss/latest/content/vss_dep_helm.html)
-- [VSS Docker Compose Deployment](https://docs.nvidia.com/vss/latest/content/vss_dep_docker.html)
+- [VSS Docker Compose Deployment (Single GPU)](https://docs.nvidia.com/vss/latest/content/vss_dep_docker_compose_x86.html#fully-local-deployment-single-gpu)
