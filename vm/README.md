@@ -10,6 +10,8 @@
 ## Azure VM (optional)
 
 ```bash
+az account set --subscription "<your-subscription>"
+
 az group create --name rg-vss-vm --location westeurope
 
 az vm create \
@@ -39,28 +41,48 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
+## Credentials
+
+Get your keys:
+- **NGC_API_KEY**: [NGC](https://ngc.nvidia.com/) → User menu → Setup → Generate API Key
+- **HF_TOKEN**: [HuggingFace](https://huggingface.co/settings/tokens) → New token (read access)
+
 ## Deploy
 
 ```bash
 # 1. Copy this vm/ directory to your VM
 
-# 2. Login to NGC
-docker login nvcr.io  # user: $oauthtoken, pass: <NGC_API_KEY>
+# 2. Set credentials
+export NGC_API_KEY="<your-ngc-key>"
+export HF_TOKEN="<your-hf-token>"
 
-# 3. Start NIMs
-export NGC_API_KEY="<your-key>"
+# 3. Login to NGC
+echo $NGC_API_KEY | docker login nvcr.io -u '$oauthtoken' --password-stdin
+
+# 4. Start NIMs
 ./run_nims_single_gpu.sh
 
-# 4. Wait for NIMs to be healthy
+# 5. Wait for NIMs to be healthy (~3-5 min)
 curl http://localhost:8007/v1/health/ready  # LLM
 curl http://localhost:8006/v1/health/ready  # Embedding
 curl http://localhost:8005/v1/health/ready  # Reranker
 
-# 5. Configure and start VSS
+# 6. Configure and start VSS
 cp .env.example .env
-# Edit .env: set NGC_API_KEY and HF_TOKEN
+sed -i "s|<your-ngc-api-key>|$NGC_API_KEY|" .env
+sed -i "s|<your-huggingface-token>|$HF_TOKEN|" .env
 source .env
-docker compose up
+docker compose up -d
+
+# 7. Wait for VSS to be ready (~5-10 min first run - downloads Cosmos model)
+docker logs -f vss-vm-via-server-1  # watch progress
+curl http://localhost:8100/health/ready
+```
+
+## Test
+
+```bash
+./summarize_url.sh "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
 ```
 
 **UI:** http://\<vm-ip\>:9100 | **API:** http://\<vm-ip\>:8100
