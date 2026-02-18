@@ -2,6 +2,9 @@
 # All services share GPU 0 on a single H100 node.
 # Source: https://docs.nvidia.com/vss/latest/content/vss_dep_helm.html#fully-local-single-gpu-deployment
 
+global:
+  ngcImagePullSecretName: ngc-docker-reg-secret
+
 nim-llm:
   image:
     repository: nvcr.io/nim/meta/llama-3.1-8b-instruct
@@ -9,6 +12,8 @@ nim-llm:
   llmModel: meta/llama-3.1-8b-instruct
   model:
     name: meta/llama-3.1-8b-instruct
+  nodeSelector:
+    agentpool: gpupool
   env:
     - name: NVIDIA_VISIBLE_DEVICES
       value: "0"
@@ -21,6 +26,8 @@ nim-llm:
       nvidia.com/gpu: 0  # no limit — share GPU via NVIDIA_VISIBLE_DEVICES
 
 vss:
+  nodeSelector:
+    agentpool: gpupool
   resources:
     limits:
       nvidia.com/gpu: 0  # top-level override to bypass device plugin
@@ -128,6 +135,8 @@ vss:
           type: embeddings
 
 nemo-embedding:
+  nodeSelector:
+    agentpool: gpupool
   resources:
     limits:
       nvidia.com/gpu: 0  # top-level override to bypass device plugin
@@ -145,6 +154,8 @@ nemo-embedding:
               nvidia.com/gpu: 0  # no limit
 
 nemo-rerank:
+  nodeSelector:
+    agentpool: gpupool
   resources:
     limits:
       nvidia.com/gpu: 0  # top-level override to bypass device plugin

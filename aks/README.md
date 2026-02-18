@@ -75,9 +75,7 @@ kubectl create secret generic hf-token-secret --from-literal=HF_TOKEN=$HF_TOKEN
 ### 4. Deploy VSS
 
 ```bash
-helm install vss-blueprint nvidia-blueprint-vss-2.4.1.tgz \
-  --set global.ngcImagePullSecretName=ngc-docker-reg-secret \
-  -f overrides-single-gpu.yaml
+helm install vss-blueprint nvidia-blueprint-vss-2.4.1.tgz -f overrides-single-gpu.yaml
 
 watch -n 5 kubectl get pods  # wait for all 1/1 Running (~15-30 min)
 ```
@@ -103,8 +101,27 @@ az aks nodepool scale -g rg-vss-aks --cluster-name aks-vss -n gpupool --node-cou
 az group delete -n rg-vss-aks --yes
 ```
 
+## Scaling
+
+This setup shares a single GPU across all services (demo/dev). To scale for production:
+
+1. **Add GPU nodes**: `az aks nodepool scale ... --node-count 4`
+2. **Update overrides** - remove single-GPU sharing config:
+   ```yaml
+   vss:
+     replicas: 3  # parallel video processors
+     resources:
+       limits:
+         nvidia.com/gpu: 1  # dedicated GPU per replica
+   ```
+3. **Remove** `NVIDIA_VISIBLE_DEVICES=0` and `nvidia.com/gpu: 0` from all components
+4. Each VSS replica gets its own GPU for concurrent video processing
+
+See [NVIDIA VSS docs](https://docs.nvidia.com/vss/latest/content/vss_dep_helm.html) for production configurations.
+
 ## Notes
 
 - All services share GPU 0 via `NVIDIA_VISIBLE_DEVICES=0` with `nvidia.com/gpu: 0`
 - Don't add taints to GPU node pool
 - `overrides-single-gpu.yaml` includes fsGroup fix for rerank PVC permissions
+- **Names must match**: The overrides file references `agentpool: gpupool` and `ngc-docker-reg-secret`. If you use different names when creating the nodepool or secrets, update the overrides accordingly.
