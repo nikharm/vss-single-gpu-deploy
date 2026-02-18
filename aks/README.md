@@ -80,13 +80,33 @@ helm install vss-blueprint nvidia-blueprint-vss-2.4.1.tgz -f overrides-single-gp
 watch -n 5 kubectl get pods  # wait for all 1/1 Running (~15-30 min)
 ```
 
-### 5. Test
+### 5. Access
 
 ```bash
 kubectl port-forward svc/vss-service 8100:8000 &
 curl http://localhost:8100/health/ready
+```
+
+- **UI:** http://localhost:9100 (also port-forward: `kubectl port-forward svc/vss-service 9100:9100 &`)
+- **API:** http://localhost:8100
+
+## Usage
+
+```bash
 ./summarize_url.sh "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
 ```
+
+The script uploads the video to VSS, runs summarization, and saves results to `summaries/`.
+
+### Customizing prompts
+
+The `/summarize` API accepts three prompts (see `summarize_url.sh`):
+
+- `prompt` -- per-chunk VLM caption prompt (what Cosmos-Reason2 describes per video chunk)
+- `caption_summarization_prompt` -- how chunk captions are structured
+- `summary_aggregation_prompt` -- how the final summary is aggregated
+
+Edit these in `summarize_url.sh` or pass them directly via the API.
 
 ## Cost control
 

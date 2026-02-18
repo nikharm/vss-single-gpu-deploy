@@ -79,13 +79,25 @@ docker logs -f vss-vm-via-server-1  # watch progress
 curl http://localhost:8100/health/ready
 ```
 
-## Test
+## Usage
+
+**UI:** http://\<vm-ip\>:9100 | **API:** http://\<vm-ip\>:8100
 
 ```bash
 ./summarize_url.sh "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
 ```
 
-**UI:** http://\<vm-ip\>:9100 | **API:** http://\<vm-ip\>:8100
+The script uploads the video to VSS, runs summarization, and saves results to `summaries/`.
+
+### Customizing prompts
+
+The `/summarize` API accepts three prompts (see `summarize_url.sh`):
+
+- `prompt` -- per-chunk VLM caption prompt (what Cosmos-Reason2 describes per video chunk)
+- `caption_summarization_prompt` -- how chunk captions are structured
+- `summary_aggregation_prompt` -- how the final summary is aggregated
+
+Edit these in `summarize_url.sh` or pass them directly via the API.
 
 ## Stop
 
