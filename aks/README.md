@@ -92,11 +92,21 @@ curl http://localhost:8100/health/ready
 
 ## Usage
 
+### Local download (default)
+
 ```bash
 ./summarize_url.sh "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
 ```
 
-The script uploads the video to VSS, runs summarization, and saves results to `summaries/`.
+Downloads the video to your machine, uploads through port-forward, and saves results to `summaries/`.
+
+### On-cluster download (faster for large videos)
+
+```bash
+./summarize_url_cluster.sh "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+```
+
+Downloads and uploads the video entirely on the AKS cluster via `kubectl exec`, so video bytes never leave the cluster network. Only the small JSON summarize request/response travels through the local port-forward. Results are saved to `summaries-cluster/`.
 
 ### Customizing prompts
 
