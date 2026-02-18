@@ -84,10 +84,14 @@ curl http://localhost:8100/health/ready
 **UI:** http://\<vm-ip\>:9100 | **API:** http://\<vm-ip\>:8100
 
 ```bash
+# From the VM itself
 ./summarize_url.sh "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
+
+# From your local machine (pass VM IP as second argument)
+./summarize_url.sh "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" "http://<vm-ip>:8100"
 ```
 
-The script uploads the video to VSS, runs summarization, and saves results to `summaries/`.
+The script downloads the video, uploads it to VSS, runs summarization, and saves results to `summaries/`.
 
 ### Customizing prompts
 
