@@ -44,7 +44,7 @@ helm repo add nvidia https://helm.ngc.nvidia.com/nvidia --force-update
 helm install gpu-operator nvidia/gpu-operator \
   -n gpu-operator --create-namespace \
   --set driver.enabled=false \
-  --set toolkit.enabled=false
+  --set toolkit.enabled=true
 
 # Verify (~1-2 min)
 kubectl get nodes -o json | jq '.items[].status.allocatable["nvidia.com/gpu"]'
